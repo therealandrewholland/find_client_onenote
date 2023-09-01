@@ -22,12 +22,27 @@ This application helps you find and open a client's OneNote quickly, among other
 - **Color Schemes**: Customize the GUI color scheme with multiple different layouts
 - **Keyboard and UI Navigation**: Navigate through the application using the keyboard or intuitive UI elements.
 
+
 ## Installation
-TO DO
+
+**Installation without compiling**
+1. Download the .zip file from this project's most recent release and unzip the folder to wherever you want
+2. Run the .exe and use the default shortcut, "Control+V", or the system tray icon to bring up the GUI for the first time
+3. The .exe needs to be located within the 'Find Client OneNote' to function properly, so create a shortcut of it if you want to launch it from outside the folder
+
+**Installation with compiling**
+1. Download this project's resources
+2. Install Python from here: https://www.python.org/downloads/
+3. Open a command prompt, `cd` to the project resources folder main folder, and run the command `python -m pip install requirements.txt`
+4. Run the "compile_command.bat" file by double clicking it
+5. The compiled project will be located within "dist\Find Client OneNote"
+  
 
 ## GUI Navigation
 
 ### Main Menu
+
+![01_search_page](Screenshots/01_search_page.png)
 
 #### UI Elements for Main Menu
 - **Search Bar**: Type in your search query to look for clients.
@@ -37,12 +52,13 @@ TO DO
 #### Keyboard Shortcuts for Main Menu
 - **Enter**: Initiates a search for clients based on the query in the search bar.
 - **Escape**: Opens the settings.
-
-![01_search_page](Screenshots/01_search_page.png)
   
 ---
 
 ### Selection Screen
+
+![02_selection_page](Screenshots/02_selection_page.png)
+![02a_favorites](Screenshots/02a_favorites.png)
 
 #### UI Elements for Selection Screen
 - **Client List**: Displays a scrollable list of all clients.
@@ -57,12 +73,12 @@ TO DO
 - **Tab, Right Click**: Toggles between favoriting and unfavoriting the currently highlighted client.
 - **Escape**: Opens the main menu.
 
-![02_selection_page](Screenshots/02_selection_page.png)
-![02a_favorites](Screenshots/02a_favorites.png)
-
 ---
 
 ### Settings
+
+![03_settings_page](Screenshots/03_settings_page.png)
+![04_change_ui](Screenshots/04_change_ui.png)
 
 #### UI Elements for Settings
 - **UI Mode Dropdown**: Allows you to switch between different color schemes and layouts.
@@ -72,14 +88,10 @@ TO DO
 #### Keyboard Shortcuts for Settings
 - **Escape**: Opens the main menu.
 
-![03_settings_page](Screenshots/03_settings_page.png)
-![04_change_ui](Screenshots/04_change_ui.png)
-
 ---
 
 ### System Tray
 
-- **Right-Click Icon**: Quickly open GUI settings or quit the application completely.
-
 ![05_system_tray](Screenshots/05_system_tray.png)
 
+- **Right-Click Icon**: Use the menu to open GUI settings or quit the application entirely.
