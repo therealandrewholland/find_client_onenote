@@ -29,8 +29,6 @@ TO DO
 
 ### Main Menu
 
-![01_search_page](Screenshots/01_search_page.png)
-
 #### UI Elements for Main Menu
 - **Search Bar**: Type in your search query to look for clients.
 - **Search Button**: Initiates a search for clients based on the query in the search bar.
@@ -39,13 +37,12 @@ TO DO
 #### Keyboard Shortcuts for Main Menu
 - **Enter**: Initiates a search for clients based on the query in the search bar.
 - **Escape**: Opens the settings.
+
+![01_search_page](Screenshots/01_search_page.png)
   
 ---
 
 ### Selection Screen
-
-![02_selection_page](Screenshots/02_selection_page.png)
-![02a_favorites](Screenshots/02a_favorites.png)
 
 #### UI Elements for Selection Screen
 - **Client List**: Displays a scrollable list of all clients.
@@ -60,12 +57,12 @@ TO DO
 - **Tab, Right Click**: Toggles between favoriting and unfavoriting the currently highlighted client.
 - **Escape**: Opens the main menu.
 
+![02_selection_page](Screenshots/02_selection_page.png)
+![02a_favorites](Screenshots/02a_favorites.png)
+
 ---
 
 ### Settings
-
-![03_settings_page](Screenshots/03_settings_page.png)
-![04_change_ui](Screenshots/04_change_ui.png)
 
 #### UI Elements for Settings
 - **UI Mode Dropdown**: Allows you to switch between different color schemes and layouts.
@@ -75,13 +72,14 @@ TO DO
 #### Keyboard Shortcuts for Settings
 - **Escape**: Opens the main menu.
 
+![03_settings_page](Screenshots/03_settings_page.png)
+![04_change_ui](Screenshots/04_change_ui.png)
+
 ---
 
 ### System Tray
 
-![05_system_tray](Screenshots/05_system_tray.png)
-
 - **Right-Click Icon**: Quickly open GUI settings or quit the application completely.
 
-![Screenshot Placeholder](path/to/screenshot4.png)
+![05_system_tray](Screenshots/05_system_tray.png)
 
