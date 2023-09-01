@@ -412,7 +412,7 @@ class MainApplication(tk.Tk):
         if key_pressed in ['Return', 'Escape']:
             self.change_frame(key_pressed, event.state)
             return "break"
-        elif active_frame == "selection_frame" and (key_pressed == 'Tab' or event.num in [2,3]):
+        elif active_frame.tag == "selection_frame" and (key_pressed == 'Tab' or event.num in [2,3]):
             if event.y:
                 self.listbox.select_clear(0, tk.END)
                 self.listbox.select_set(self.listbox.nearest(event.y))
@@ -715,7 +715,8 @@ if __name__ == "__main__":
     try:
         me = singleton.SingleInstance()
     except singleton.SingleInstanceException:
-        sys.exit(f'An unexpected error occurred: {str(e)}')
+        messagebox.showinfo('Error', "An instance of the application is already running.")
+        sys.exit(0)
         
     try:
         app = MainApplication()

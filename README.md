@@ -14,8 +14,8 @@ This application helps you find and open a client's OneNote quickly, among other
 
 ## Features
 
-- **Search for Clients**: Tkinter-based GUI for searching and selecting clients based on paritial names or abbreviations.
-- **Documentation Access**: Directly open a client's "Network & Wireless" folder or OneNote file through the appication
+- **Search for Clients**: Tkinter-based GUI for searching and selecting clients based on prtial names or abbreviations.
+- **Documentation Access**: Directly open a client's "Network & Wireless" folder or OneNote file through the application
 - **Favoriting**: Favorite specific clients for quicker access in future searches.
 - **Hotkey Support**: Use hotkeys for quick access to the search bar or AutoTask ticket lookup
 - **System Tray Integration**: Use the system tray icon for quick access to settings or quitting the application.
@@ -29,7 +29,7 @@ TO DO
 
 ### Main Menu
 
-![Screenshot Placeholder](path/to/screenshot1.png)
+![01_search_page](Screenshots/01_search_page.png)
 
 #### UI Elements for Main Menu
 - **Search Bar**: Type in your search query to look for clients.
@@ -44,7 +44,8 @@ TO DO
 
 ### Selection Screen
 
-![Screenshot Placeholder](path/to/screenshot3.png)
+![02_selection_page](Screenshots/02_selection_page.png)
+![02a_favorites](Screenshots/02a_favorites.png)
 
 #### UI Elements for Selection Screen
 - **Client List**: Displays a scrollable list of all clients.
@@ -63,7 +64,8 @@ TO DO
 
 ### Settings
 
-![Screenshot Placeholder](path/to/screenshot3.png)
+![03_settings_page](Screenshots/03_settings_page.png)
+![04_change_ui](Screenshots/04_change_ui.png)
 
 #### UI Elements for Settings
 - **UI Mode Dropdown**: Allows you to switch between different color schemes and layouts.
@@ -76,6 +78,8 @@ TO DO
 ---
 
 ### System Tray
+
+![05_system_tray](Screenshots/05_system_tray.png)
 
 - **Right-Click Icon**: Quickly open GUI settings or quit the application completely.
 
