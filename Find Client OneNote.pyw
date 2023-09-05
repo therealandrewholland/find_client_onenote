@@ -653,14 +653,21 @@ class MainApplication(tk.Tk):
         logging.info("Hiding system tray icon and opening GUI.")
         self.icon.stop()
         self.icon = None
+
+        #not the best implementation, but works for now    
+        self.settings_frame.pack_forget()
+        self.selection_frame.pack_forget()
+        self.search_frame.pack_forget()
+                
         if settings:
-            self.change_frame_by_tag('search_frame', 'Escape', None)
+            self.transition_to_settings_frame()
             self.center_window()
         else:
-            self.entry.delete(0, 'end')
-            self.change_frame_by_tag('settings_frame', 'Escape', None)
+            self.transition_to_search_frame()
             self.place_window_at_cursor()
+            
         self.deiconify()
+        
         self.lift()
         self.focus_force()
         if settings:
