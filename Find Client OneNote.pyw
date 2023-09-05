@@ -93,6 +93,7 @@ class MainApplication(tk.Tk):
         self.title(self.APPLICATION_NAME)
         self.configure(bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.init_gui()
+        self.iconbitmap('transparent.ico')
         self.protocol('WM_DELETE_WINDOW', self.withdraw_window)
         logging.info("GUI initialized...")
 
@@ -393,6 +394,7 @@ class MainApplication(tk.Tk):
 
     def transition_to_search_frame(self):
         self.label.config(text='Enter client name: ')
+        self.entry.delete(0, 'end')
         self.search_frame.pack()
         self.entry.focus_set()
 
@@ -655,6 +657,7 @@ class MainApplication(tk.Tk):
             self.change_frame_by_tag('search_frame', 'Escape', None)
             self.center_window()
         else:
+            self.entry.delete(0, 'end')
             self.change_frame_by_tag('settings_frame', 'Escape', None)
             self.place_window_at_cursor()
         self.deiconify()
@@ -692,7 +695,7 @@ class MainApplication(tk.Tk):
 #Useful for debugging
 logging.basicConfig(
     filename='Find Client OneNote.log',
-    level=logging.INFO, #INFO
+    level=logging.ERROR, #INFO
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
