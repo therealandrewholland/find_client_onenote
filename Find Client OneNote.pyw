@@ -570,8 +570,12 @@ class MainApplication(tk.Tk):
         folder_path = os.path.join(self.MAIN_DIRECTORY_PATH, selected_folder)
         specific_directories = self.generate_specific_directories(folder_path, network_map)
 
+
         result = self.find_directory_with_files(specific_directories)
-        return result if result != (None, None) else folder_path, ''
+
+        if result == [None, None]:
+            result = folder_path, ''
+        return result
 
     def generate_specific_directories(self, folder_path, network_map):
         file_type = "Network & Wireless" if network_map else "OneNote"
@@ -688,7 +692,7 @@ class MainApplication(tk.Tk):
 #Useful for debugging
 logging.basicConfig(
     filename='Find Client OneNote.log',
-    level=logging.ERROR, #INFO
+    level=logging.INFO, #INFO
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
