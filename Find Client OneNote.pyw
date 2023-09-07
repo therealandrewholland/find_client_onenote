@@ -93,6 +93,7 @@ class MainApplication(tk.Tk):
         self.title(self.APPLICATION_NAME)
         self.configure(bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.init_gui()
+        self.iconbitmap('transparent.ico')
         self.protocol('WM_DELETE_WINDOW', self.withdraw_window)
         logging.info("GUI initialized...")
 
@@ -393,6 +394,7 @@ class MainApplication(tk.Tk):
 
     def transition_to_search_frame(self):
         self.label.config(text='Enter client name: ')
+        self.entry.delete(0, 'end')
         self.search_frame.pack()
         self.entry.focus_set()
 
@@ -573,7 +575,7 @@ class MainApplication(tk.Tk):
 
         result = self.find_directory_with_files(specific_directories)
 
-        if result == [None, None]:
+        if result[1] == None:
             result = folder_path, ''
         return result
 
@@ -651,13 +653,21 @@ class MainApplication(tk.Tk):
         logging.info("Hiding system tray icon and opening GUI.")
         self.icon.stop()
         self.icon = None
+
+        #not the best implementation, but works for now    
+        self.settings_frame.pack_forget()
+        self.selection_frame.pack_forget()
+        self.search_frame.pack_forget()
+                
         if settings:
-            self.change_frame_by_tag('search_frame', 'Escape', None)
+            self.transition_to_settings_frame()
             self.center_window()
         else:
-            self.change_frame_by_tag('settings_frame', 'Escape', None)
+            self.transition_to_search_frame()
             self.place_window_at_cursor()
+            
         self.deiconify()
+        
         self.lift()
         self.focus_force()
         if settings:
@@ -692,7 +702,7 @@ class MainApplication(tk.Tk):
 #Useful for debugging
 logging.basicConfig(
     filename='Find Client OneNote.log',
-    level=logging.INFO, #INFO
+    level=logging.ERROR, #INFO
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
