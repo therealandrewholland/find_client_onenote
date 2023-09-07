@@ -1,9 +1,9 @@
 # Find Client OneNote
 
-This application helps you find and open a client's OneNote quickly, among other things.
+This application helps you quickly find and open a client's OneNote, among other things.
 
 This project is heavily inspired by Brian Emmons' PowerShell script, which essentially does the same thing. 
-It located in the NOC Playbook under "Tools and Shortcuts" -> "PS - Find Customer Folders"
+It is located in the NOC Playbook under "Tools and Shortcuts" -> "PS - Find Customer Folders."
 
 ## Table of Contents
 
@@ -14,34 +14,31 @@ It located in the NOC Playbook under "Tools and Shortcuts" -> "PS - Find Custome
   - [Selection Screen](#selection-screen)
   - [Settings](#settings)
   - [System Tray](#system-tray)
-- [Using the AutoTask ticket look-up](#using-the-autotask-ticket-look-up)
-
+- [Using the AutoTask Ticket Lookup](#using-the-autotask-ticket-lookup)
 
 ## Features
 
-- **Search for Clients**: Tkinter-based GUI for searching and selecting clients based on prtial names or abbreviations.
-- **Documentation Access**: Directly open a client's "Network & Wireless" folder or OneNote file through the application
+- **Search for Clients**: Tkinter-based GUI for searching and selecting clients based on partial names or abbreviations.
+- **Documentation Access**: Directly open a client's "Network & Wireless" folder or OneNote file through the application.
 - **Favoriting**: Favorite specific clients for quicker access in future searches.
-- **Hotkey Support**: Use hotkeys for quick access to the search bar or AutoTask ticket lookup
+- **Hotkey Support**: Use hotkeys for quick access to the search bar or AutoTask ticket lookup.
 - **System Tray Integration**: Use the system tray icon for quick access to settings or quitting the application.
-- **Color Schemes**: Customize the GUI color scheme with multiple different layouts
+- **Color Schemes**: Customize the GUI color scheme with multiple different layouts.
 - **Keyboard and UI Navigation**: Navigate through the application using the keyboard or intuitive UI elements.
-
 
 ## Installation
 
 **Installation without compiling**
-1. Download the `.zip` file from this project's most recent release and unzip the folder to wherever you want
-2. Run the `.exe` and use the default shortcut, `Control+V`, or the system tray icon to bring up the GUI for the first time
-3. The `.exe` needs to be located within the 'Find Client OneNote' to function properly, so create a shortcut of it if you want to launch it from outside the folder
+1. Download the `.zip` file from this project's most recent release and unzip the folder to wherever you want.
+2. Run the `.exe` and use the default shortcut, `Control+V`, or the system tray icon to bring up the GUI for the first time.
+3. The `.exe` needs to be located within the 'Find Client OneNote' folder to function properly, so create a shortcut of it if you want to launch it from outside the folder.
 
 **Installation with compiling**
-1. Download this project's resources
-2. Install Python from here: https://www.python.org/downloads/
-3. Open a command prompt, `cd` to the project resources folder main folder, and run the command `python -m pip install requirements.txt`
-4. Run the "compile_command.bat" file by double clicking it
-5. The compiled project will be located within "dist\Find Client OneNote"
-  
+1. Download this project's resources.
+2. Install Python from here: https://www.python.org/downloads/.
+3. Open a command prompt, `cd` to the project resources folder main folder, and run the command `python -m pip install requirements.txt`.
+4. Run the "compile_command.bat" file by double-clicking it.
+5. The compiled project will be located within "dist\Find Client OneNote."
 
 ## GUI Navigation
 
@@ -101,14 +98,13 @@ It located in the NOC Playbook under "Tools and Shortcuts" -> "PS - Find Custome
 
 ![05_system_tray](Screenshots/05_system_tray.png)
 
-
 ---
 
-## Using the AutoTask ticket look-up
+## Using the AutoTask Ticket Lookup
 1. Run the `.exe` file.
 2. Highlight text and press the default shortcut, `Ctrl+Z`.
 3. The application will open a web browser and search in AutoTask for tickets that contain the highlighted text in their title or description.
 
 ---
 
-### Please shoot me a message if you have any issues or bugs and I will work quickly to get them fixed! Also, make sure to check out the GitHub issues sections because I may post temporary fixes / workarounds there before a push a full fix!![image]
+### Please shoot me a message if you have any issues or bugs, and I will work quickly to get them fixed! Also, make sure to check out the GitHub issues section because I may post temporary fixes / workarounds there before pushing a full fix!
