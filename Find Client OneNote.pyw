@@ -415,11 +415,12 @@ class MainApplication(tk.Tk):
             self.change_frame(key_pressed, event.state)
             return "break"
         elif active_frame.tag == "selection_frame" and (key_pressed == 'Tab' or event.num in [2,3]):
-            if event.y:
+            if event.num in [2,3]:
                 self.listbox.select_clear(0, tk.END)
                 self.listbox.select_set(self.listbox.nearest(event.y))
+            selected_item = self.listbox.get(self.listbox.curselection()[0])
 
-            self.save_favorites(self.listbox.get(self.listbox.curselection()[0]))
+            self.save_favorites(selected_item)
             self.search_folders()
 
             self.listbox.focus_set()
@@ -517,7 +518,6 @@ class MainApplication(tk.Tk):
 
         clients = self.filter_client_list_by_query(query)
         if not clients:
-            messagebox.showinfo('No Results', 'No matching folders found.')
             return None
 
         return clients
