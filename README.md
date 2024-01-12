@@ -61,13 +61,15 @@ It is located in the NOC Playbook under "Tools and Shortcuts" -> "PS - Find Cust
 
 #### UI Elements for Selection Screen
 - **Client List**: Displays a scrollable list of all clients.
-- **Open OneNote Button**: Opens the OneNote of the currently highlighted client.
-- **Open Network & Wireless Button**: Opens the Network & Wireless folder of the currently highlighted client.
+- **Open OneNote Button**: Opens the OneNote documentation for the currently selected client.
+- **Open IT Glue Button**: Opens the IT Glue documentation for the currently selected client.
+- **Open Network & Wireless Button**: Opens the Network & Wireless folder of the currently selected client.
 - **Back Button**: Opens the main menu.
 
 #### Keyboard Shortcuts for Selection Screen
-- **Enter**: Opens the OneNote of the currently highlighted client.
-- **Control+Enter**: Opens the Network & Wireless folder of the currently highlighted client.
+- **Enter**: Opens the OneNote documentation for the currently selected client.
+- **Alt+Enter**: Opens the IT Glue documentation for the currently selected client.
+- **Control+Enter**: Opens the Network & Wireless folder of the currently selected client.
 - **Up/Down Arrows, Scroll Wheel**: Navigates through the list of clients.
 - **Tab, Right Click**: Toggles between favoriting and unfavoriting the currently highlighted client.
 - **Escape**: Opens the main menu.
