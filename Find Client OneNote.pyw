@@ -81,6 +81,8 @@ class MainApplication(tk.Tk):
         }
     }
 
+    ITGLUE_CLIENT_IDS = JSONFileManager.load_file("IT Glue Client IDs_JAN2024.json")
+
     def __init__(self):        
         super().__init__()
         logging.info("- - - - - - - - Start - - - - - - - -")
@@ -205,8 +207,11 @@ class MainApplication(tk.Tk):
         self.open_button = tk.Button(self.button_frame, text='Open OneNote', command=lambda: self.open_file(), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.open_button.pack(fill=tk.BOTH)
 
-        self.open_button2 = tk.Button(self.button_frame, text='Open Network Map', command=lambda: self.open_file(network_map=True), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
+        self.open_button2 = tk.Button(self.button_frame, text='Open IT Glue', command=lambda: self.open_file(it_glue=True), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.open_button2.pack(fill=tk.BOTH)
+
+        self.open_button3 = tk.Button(self.button_frame, text='Open Network Map', command=lambda: self.open_file(network_map=True), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
+        self.open_button3.pack(fill=tk.BOTH)
 
         self.back_button = tk.Button(self.button_frame, text='Back', command=lambda: self.change_frame('Escape'), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.back_button.pack(fill=tk.BOTH)
@@ -282,6 +287,7 @@ class MainApplication(tk.Tk):
         self.button_frame.configure(bg=ui_option['bg'])
         self.open_button.configure(fg=ui_option['fg'], bg=ui_option['accent'])
         self.open_button2.configure(fg=ui_option['fg'], bg=ui_option['accent'])
+        self.open_button3.configure(fg=ui_option['fg'], bg=ui_option['accent'])
         self.back_button.configure(fg=ui_option['fg'], bg=ui_option['accent'])
         self.scrollbar.configure(highlightbackground=ui_option['accent'], troughcolor=ui_option['bg'])
 
@@ -365,10 +371,12 @@ class MainApplication(tk.Tk):
         if key_pressed == 'Return' and self.focus_get() == self.listbox:
             self.selection_frame.pack_forget()
 
-            if event_state & 4: 
+            if event_state & 4:
                 self.open_file(network_map=True)
+            elif event_state & 131072:
+                self.open_file(it_glue=True)
             else:
-                self.open_file(network_map=False)
+                self.open_file(network_map=False, it_glue=False)
         if key_pressed == 'Escape':
             self.selection_frame.pack_forget()
             self.transition_to_search_frame()
@@ -546,17 +554,36 @@ class MainApplication(tk.Tk):
     def simplify_string(self, complicated_string):
         return complicated_string.translate(str.maketrans('', '', string.punctuation)).lower()
 
-    def open_file(self, network_map=False):
+    def open_file(self, network_map=False, it_glue=False):
         try:
             selected_folder = self.get_selected_folder()
             if selected_folder == "NOC Playbook":
                 self.open_noc_playbook()
                 return
 
-            folder_path, file_list = self.locate_specific_directory(selected_folder, network_map)
-            file_path = self.determine_file_path(folder_path, file_list, network_map, selected_folder)
+            if it_glue == False:
+                folder_path, file_list = self.locate_specific_directory(selected_folder, network_map)
+                file_path = self.determine_file_path(folder_path, file_list, network_map, selected_folder)
 
-            self.open_target(file_path)
+                self.open_target(file_path)
+            
+            else:
+                if selected_folder in self.ITGLUE_CLIENT_IDS:
+                    nested_dict = self.ITGLUE_CLIENT_IDS[selected_folder]
+
+                    if len(nested_dict) == 1:
+                        secondary_client_name, client_id = next(iter(nested_dict.items()))
+                        
+                        url = f"https://aunalytics.itglue.com/{client_id}"
+                        webbrowser.open(url)
+                        self.withdraw_window()
+                        
+                    elif (len(nested_dict) > 1) or (len(nested_dict) < 1):
+                        client_name = urllib.parse.quote(selected_folder)
+                        url = f"https://aunalytics.itglue.com/organizations#partial={client_name}&sortBy=name:asc&filters=[{client_name}]"
+                        webbrowser.open(url)
+                        self.withdraw_window()
+                        
         except Exception as e:
             messagebox.showerror('Error', f"An unexpected error occurred: {str(e)}")
 
