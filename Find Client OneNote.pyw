@@ -8,6 +8,7 @@ import string
 import sys
 import time
 import urllib.parse
+import get_itglue_ids #getITGlueIDs
 
 from PIL import Image
 import pyperclip
@@ -17,6 +18,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import keyboard
 import webbrowser
+import threading
 
 class JSONFileManager:
     @staticmethod
@@ -226,40 +228,57 @@ class MainApplication(tk.Tk):
         self.settings_frame = tk.Frame(self, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.settings_frame.tag = "settings_frame"
         
-        self.ui_combobox_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
-        self.ui_combobox_frame.pack()
+        self.ui_combobox_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
+        self.ui_combobox_frame.pack(fill=tk.BOTH)
         
         self.ui_combobox_label = tk.Label(self.ui_combobox_frame, text="Select UI Mode: ", fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.ui_combobox_label.pack(side=tk.LEFT, fill=tk.BOTH)
 
-        self.style= ttk.Style()
+        self.style = ttk.Style()
         self.style.theme_use('clam')
         self.update_ui_combobox()
-        
-        self.shortcut_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
-        self.shortcut_frame.pack()
+
+
+
+        self.shortcut_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
+        self.shortcut_frame.pack(fill=tk.BOTH)
         
         self.shortcut_label = tk.Label(self.shortcut_frame, text="Application Shortcut: ", fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.shortcut_label.pack(side=tk.LEFT, fill=tk.BOTH)
         
         self.shortcut_entry = tk.Entry(self.shortcut_frame, fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['entry'])
         self.shortcut_entry.insert(0, self.settings.get("OneNote Shortcut", "Ctrl+V"))
-        self.shortcut_entry.pack(side=tk.RIGHT, fill=tk.Y)
+        self.shortcut_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
 
-        self.shortcut2_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
-        self.shortcut2_frame.pack()
+        self.shortcut2_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
+        self.shortcut2_frame.pack(fill=tk.BOTH)
         
         self.shortcut2_label = tk.Label(self.shortcut2_frame, text="Ticket Search Shortcut: ", fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.shortcut2_label.pack(side=tk.LEFT, fill=tk.BOTH)
         
         self.shortcut2_entry = tk.Entry(self.shortcut2_frame, fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['entry'])
         self.shortcut2_entry.insert(0, self.settings.get("Ticket Search Shortcut", "Ctrl+C"))
-        self.shortcut2_entry.pack(side=tk.RIGHT, fill=tk.Y)
+        self.shortcut2_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
 
-        self.save_button = tk.Button(self.settings_frame, text='Save and Change', command=self.save_settings, fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
+
+
+        self.generate_itglue_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
+        self.generate_itglue_frame.pack(fill=tk.BOTH)
+
+        self.generate_itglue_label = tk.Label(self.generate_itglue_frame, text="Generate IT Glue IDs:  ", fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
+        self.generate_itglue_label.pack(side=tk.LEFT, fill=tk.BOTH)
+
+        self.generate_itglue_button = tk.Button(self.generate_itglue_frame, text='Generate', command=self.it_glue_popup, fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
+        self.generate_itglue_button.pack(fill=tk.BOTH)
+
+
+        self.settings_buttons_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
+        self.settings_buttons_frame.pack(fill=tk.BOTH)
+
+        self.save_button = tk.Button(self.settings_buttons_frame, text='Save and Change', command=self.save_settings, fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.save_button.pack(fill=tk.BOTH)
 
-        self.back_button2 = tk.Button(self.settings_frame, text='Back', command=lambda:self.change_frame('Escape'), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
+        self.back_button2 = tk.Button(self.settings_buttons_frame, text='Back', command=lambda:self.change_frame('Escape'), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.back_button2.pack(fill=tk.BOTH)
 
 
@@ -578,7 +597,7 @@ class MainApplication(tk.Tk):
                         webbrowser.open(url)
                         self.withdraw_window()
                         
-                    elif (len(nested_dict) > 1) or (len(nested_dict) < 1):
+                    else: #if (len(nested_dict) > 1) or (len(nested_dict) < 1):
                         client_name = urllib.parse.quote(selected_folder)
                         url = f"https://aunalytics.itglue.com/organizations#partial={client_name}&sortBy=name:asc&filters=[{client_name}]"
                         webbrowser.open(url)
@@ -725,6 +744,134 @@ class MainApplication(tk.Tk):
         ticket_url = "https://ww1.autotask.net/Mvc/ServiceDesk/TicketGridSearch.mvc/SearchByTicketNumberOrTitleOrDescription?TicketNumberOrTitleOrDescription=%s" % url_encoded_text
         webbrowser.open(ticket_url)
 
+    def it_glue_popup(self):        
+        popup = PopUpWindow(self)
+
+
+class PopUpWindow:
+    def __init__(self, parent):
+        self.parent = parent
+        self.popup = tk.Toplevel(parent)
+        self.popup.title("IT Glue Credentials")
+        self.set_position()
+        self.generate_ui()
+
+        self.get_itglue_ids = None
+        self.progress_thread = None
+        self.background_thread = None
+        self.threads_running = False
+        self.client_ids_generated = False
+
+        self.popup.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def generate_ui(self):
+        self.username_entry_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=1)
+        self.username_entry_frame.pack(fill=tk.BOTH)
+        
+        tk.Label(self.username_entry_frame, text="Username:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg']).pack(side=tk.LEFT, fill=tk.BOTH)
+        self.username_entry = tk.Entry(self.username_entry_frame, fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry'])
+        self.username_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
+
+        self.password_entry_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=1)
+        self.password_entry_frame.pack(fill=tk.BOTH)
+
+        tk.Label(self.password_entry_frame, text="Password:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg']).pack(side=tk.LEFT, fill=tk.BOTH)
+        self.password_entry = tk.Entry(self.password_entry_frame, show="*", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry']))
+        self.password_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
+
+        self.mfa_entry_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=1)
+        self.mfa_entry_frame.pack(fill=tk.BOTH)
+
+        tk.Label(self.mfa_entry_frame, text="MFA Code:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg']).pack(side=tk.LEFT, fill=tk.BOTH)
+        self.mfa_entry = tk.Entry(self.mfa_entry_frame, fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry'])
+        self.mfa_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
+
+        self.progress = ttk.Progressbar(self.popup, orient="horizontal", length=100, mode="determinate")
+        self.progress.pack(fill=tk.BOTH)
+
+        submit_button = tk.Button(self.popup, text="Submit", command=self.submit, fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['accent'])
+        submit_button.pack(fill=tk.BOTH)
+
+    def set_position(self):
+        x = self.parent.winfo_x()
+        y = self.parent.winfo_y()
+
+        self.popup.geometry(f"+{x}+{y}")
+
+    def submit(self):
+        if not self.threads_running:
+            try:
+                if not self.background_thread.is_alive():
+                    self.background_thread = threading.Thread(target=self.it_glue_login)
+                    self.background_thread.start()
+            except AttributeError:
+                self.background_thread = threading.Thread(target=self.it_glue_login)
+                self.background_thread.start()
+                
+            try:
+                if not self.progress_thread.is_alive():
+                    self.progress_thread = threading.Thread(target=self.update_progress)
+                    self.progress_thread.start()
+            except AttributeError:
+                self.progress_thread = threading.Thread(target=self.update_progress)
+                self.progress_thread.start()
+            self.threads_running = True
+        else:
+            messagebox.showinfo('Warning', "Already generating client IDs")
+        
+    def it_glue_login(self):
+        if not self.get_itglue_ids:
+            self.get_itglue_ids = get_itglue_ids.getITGlueIDs()
+        
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        mfa_code = self.mfa_entry.get()
+
+        result, message = self.get_itglue_ids.login(username, password, mfa_code)
+
+        if not result:
+            messagebox.showinfo('Login failed', message)
+            return
+        else:
+            self.generate_it_glue()
+
+    def generate_it_glue(self):
+        while self.get_itglue_ids.progress != 100:
+            self.get_itglue_ids.getClientIDs(self.parent.CLIENT_LIST)
+        data = self.get_itglue_ids.client_ids_data
+    
+        self.get_itglue_ids.updateJSON(data)
+
+        self.client_ids_generated = True
+
+    def on_task_complete(self):
+        def task():
+            messagebox.showinfo('Success', "Client IDs generated successfully")
+        self.popup.after(0, task)
+
+    def update_progress(self):
+        while not self.get_itglue_ids:
+            time.sleep(1)
+        while self.background_thread.is_alive():
+            self.progress['value'] = self.get_itglue_ids.progress
+            self.popup.update_idletasks()
+            time.sleep(.5)
+
+        self.progress['value'] = self.get_itglue_ids.progress
+        self.popup.update_idletasks()
+
+        if not self.client_ids_generated:
+            self.threads_running = False
+        else:
+            self.on_close()
+            messagebox.showinfo('Success', "Client IDs generated successfully")
+
+    def on_close(self):
+        if self.background_thread and self.background_thread.is_alive():
+            messagebox.showwarning("Warning", "Client IDs are still generating!")
+        else:
+            self.popup.destroy()
+            
 
 #Useful for debugging
 logging.basicConfig(
@@ -747,9 +894,10 @@ def apply_logging_to_all_methods(cls):
     for attr in dir(cls):
         if callable(getattr(cls, attr)) and not attr.startswith("__"):
             setattr(cls, attr, log_method_call(getattr(cls, attr)))
-
-apply_logging_to_all_methods(MainApplication)
+            
 apply_logging_to_all_methods(JSONFileManager)
+apply_logging_to_all_methods(MainApplication)
+apply_logging_to_all_methods(PopUpWindow)
 
 
 if __name__ == "__main__":
