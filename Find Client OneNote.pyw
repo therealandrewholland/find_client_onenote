@@ -776,7 +776,7 @@ class PopUpWindow:
         self.password_entry_frame.pack(fill=tk.BOTH)
 
         tk.Label(self.password_entry_frame, text="Password:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg']).pack(side=tk.LEFT, fill=tk.BOTH)
-        self.password_entry = tk.Entry(self.password_entry_frame, show="*", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry']))
+        self.password_entry = tk.Entry(self.password_entry_frame, show="*", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry'])
         self.password_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
 
         self.mfa_entry_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=1)
@@ -871,7 +871,7 @@ class PopUpWindow:
             messagebox.showwarning("Warning", "Client IDs are still generating!")
         else:
             self.popup.destroy()
-            
+
 
 #Useful for debugging
 logging.basicConfig(
