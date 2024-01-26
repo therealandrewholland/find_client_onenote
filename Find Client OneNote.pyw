@@ -19,6 +19,7 @@ from tkinter import messagebox, ttk
 import keyboard
 import webbrowser
 import threading
+import random
 
 class JSONFileManager:
     @staticmethod
@@ -83,7 +84,10 @@ class MainApplication(tk.Tk):
         }
     }
 
-    ITGLUE_CLIENT_IDS = JSONFileManager.load_file("IT Glue Client IDs_JAN2024.json")
+    if os.path.exists("it_glue_client_ids.json"):
+        ITGLUE_CLIENT_IDS = JSONFileManager.load_file("it_glue_client_ids.json")
+    else:
+        ITGLUE_CLIENT_IDS = {}
 
     def __init__(self):        
         super().__init__()
@@ -92,6 +96,7 @@ class MainApplication(tk.Tk):
         
         self.settings = self.load_settings()
         self.icon = None
+        self.popup = None
 
         logging.info("Initializing GUI...")
         self.title(self.APPLICATION_NAME)
@@ -205,13 +210,10 @@ class MainApplication(tk.Tk):
 
         self.button_frame = tk.Frame(self.selection_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.button_frame.pack(side=tk.RIGHT, fill=tk.Y)
-
         self.open_button = tk.Button(self.button_frame, text='Open OneNote', command=lambda: self.open_file(), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.open_button.pack(fill=tk.BOTH)
-
         self.open_button2 = tk.Button(self.button_frame, text='Open IT Glue', command=lambda: self.open_file(it_glue=True), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.open_button2.pack(fill=tk.BOTH)
-
         self.open_button3 = tk.Button(self.button_frame, text='Open Network Map', command=lambda: self.open_file(network_map=True), fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.open_button3.pack(fill=tk.BOTH)
 
@@ -220,9 +222,9 @@ class MainApplication(tk.Tk):
 
         self.scrollbar = tk.Scrollbar(self.selection_frame, highlightbackground=self.UI_COLORS[self.settings["UI Mode"]]['accent'], troughcolor=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.scrollbar.config(command=self.listbox.yview)
 
         self.listbox.config(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.config(command=self.listbox.yview)
 
 
         self.settings_frame = tk.Frame(self, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'])
@@ -237,8 +239,6 @@ class MainApplication(tk.Tk):
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.update_ui_combobox()
-
-
 
         self.shortcut_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
         self.shortcut_frame.pack(fill=tk.BOTH)
@@ -260,8 +260,6 @@ class MainApplication(tk.Tk):
         self.shortcut2_entry.insert(0, self.settings.get("Ticket Search Shortcut", "Ctrl+C"))
         self.shortcut2_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
 
-
-
         self.generate_itglue_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
         self.generate_itglue_frame.pack(fill=tk.BOTH)
 
@@ -270,7 +268,6 @@ class MainApplication(tk.Tk):
 
         self.generate_itglue_button = tk.Button(self.generate_itglue_frame, text='Generate', command=self.it_glue_popup, fg=self.UI_COLORS[self.settings["UI Mode"]]['fg'], bg=self.UI_COLORS[self.settings["UI Mode"]]['accent'])
         self.generate_itglue_button.pack(fill=tk.BOTH)
-
 
         self.settings_buttons_frame = tk.Frame(self.settings_frame, bg=self.UI_COLORS[self.settings["UI Mode"]]['bg'], pady=1)
         self.settings_buttons_frame.pack(fill=tk.BOTH)
@@ -309,7 +306,6 @@ class MainApplication(tk.Tk):
         self.open_button3.configure(fg=ui_option['fg'], bg=ui_option['accent'])
         self.back_button.configure(fg=ui_option['fg'], bg=ui_option['accent'])
         self.scrollbar.configure(highlightbackground=ui_option['accent'], troughcolor=ui_option['bg'])
-
         
         self.settings_frame.configure(bg=ui_option['bg'])
         self.ui_combobox_frame.configure(bg=ui_option['bg'])
@@ -321,8 +317,14 @@ class MainApplication(tk.Tk):
         self.shortcut2_frame.configure(bg=ui_option['bg'])
         self.shortcut2_label.configure(fg=ui_option['fg'], bg=ui_option['bg'])
         self.shortcut2_entry.configure(fg=ui_option['fg'], bg=ui_option['entry'])
+        self.generate_itglue_frame.configure(bg=ui_option['bg'])
+        self.generate_itglue_label.configure(fg=ui_option['fg'], bg=ui_option['bg'])
+        self.generate_itglue_button.configure(fg=ui_option['fg'], bg=ui_option['accent'])
         self.save_button.configure(fg=ui_option['fg'], bg=ui_option['accent'])
         self.back_button2.configure(fg=ui_option['fg'], bg=ui_option['accent'])
+
+        if self.popup:
+            self.popup.change_ui_color(ui_option)
 
     def update_ui_combobox(self):
         self.style.configure("TCombobox", 
@@ -401,7 +403,7 @@ class MainApplication(tk.Tk):
             self.transition_to_search_frame()
 
     def handle_settings_frame_keys(self, key_pressed, event_state):
-        if key_pressed == 'Escape':
+        if key_pressed == 'Escape' and self.popup == None:
             self.settings_frame.pack_forget()
             settings_map = {
                 self.shortcut_entry: 'OneNote Shortcut',
@@ -587,21 +589,24 @@ class MainApplication(tk.Tk):
                 self.open_target(file_path)
             
             else:
-                if selected_folder in self.ITGLUE_CLIENT_IDS:
-                    nested_dict = self.ITGLUE_CLIENT_IDS[selected_folder]
-
-                    if len(nested_dict) == 1:
-                        secondary_client_name, client_id = next(iter(nested_dict.items()))
-                        
+                check_failed = True
+                for key in self.ITGLUE_CLIENT_IDS.keys():
+                    if selected_folder in key:
+                        check_failed = False
+                    
+                        client_id = self.ITGLUE_CLIENT_IDS[key]
+                            
                         url = f"https://aunalytics.itglue.com/{client_id}"
                         webbrowser.open(url)
                         self.withdraw_window()
-                        
-                    else: #if (len(nested_dict) > 1) or (len(nested_dict) < 1):
-                        client_name = urllib.parse.quote(selected_folder)
-                        url = f"https://aunalytics.itglue.com/organizations#partial={client_name}&sortBy=name:asc&filters=[{client_name}]"
-                        webbrowser.open(url)
-                        self.withdraw_window()
+ 
+                        break
+                    
+                if check_failed:
+                    client_name = urllib.parse.quote(selected_folder)
+                    url = f"https://aunalytics.itglue.com/organizations#partial={client_name}&sortBy=name:asc&filters=[{client_name}]"
+                    webbrowser.open(url)
+                    self.withdraw_window()
                         
         except Exception as e:
             messagebox.showerror('Error', f"An unexpected error occurred: {str(e)}")
@@ -617,7 +622,6 @@ class MainApplication(tk.Tk):
     def locate_specific_directory(self, selected_folder, network_map):
         folder_path = os.path.join(self.MAIN_DIRECTORY_PATH, selected_folder)
         specific_directories = self.generate_specific_directories(folder_path, network_map)
-
 
         result = self.find_directory_with_files(specific_directories)
 
@@ -649,7 +653,10 @@ class MainApplication(tk.Tk):
         else:
             return self.get_file_path("", folder_path, selected_folder)
 
-    def handle_missing_files(self, folder_path, network_map):
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #Logic here is a tangled mess, need to refactor (related functions may need to be refactored as well
+    def handle_missing_files(self, folder_path, network_map=False):
         file_type = "Network & Wireless" if network_map else "OneNote"
         messagebox.showerror(f'{file_type} files not found', f'No {file_type} files found. Click "OK" to open Client\'s OneDrive folder')
         return folder_path
@@ -660,6 +667,8 @@ class MainApplication(tk.Tk):
             filtered_files = [file for file in file_list if file.lower().endswith(ext)]
             if filtered_files:
                 return self.get_file_path(filtered_files, folder_path, selected_folder)
+
+        self.handle_missing_files(folder_path)
         return folder_path
 
     def get_file_path(self, file_list, specific_directory, selected_folder):
@@ -670,6 +679,8 @@ class MainApplication(tk.Tk):
     def select_file_from_list(self, file_list, specific_directory, selected_folder):
         matching_files = [file for file in file_list if selected_folder.lower() in file.lower()]
         return os.path.join(specific_directory, matching_files[0]) if len(matching_files) == 1 else specific_directory
+    #-------------------------------------------------------------------------------------------------------------------------------------------
+
 
     def remove_text_heart(self, string):
         return string.lstrip("♡ ") if string.startswith("♡ ") else string
@@ -722,9 +733,13 @@ class MainApplication(tk.Tk):
             self.entry.focus_set()
             
     def withdraw_window(self):
-        logging.info("Hiding GUI and opening system tray icon.")
-        self.withdraw()
-        self.after(0, self.init_system_tray) 
+        if (self.popup and self.popup.threads_running == False) or not self.popup:
+            if self.popup:
+                self.popup.on_close()
+        
+            logging.info("Hiding GUI and opening system tray icon.")
+            self.withdraw()
+            self.after(0, self.init_system_tray) 
 
     def get_selected_text(self):
         original_clipboard_content = pyperclip.paste()
@@ -745,53 +760,89 @@ class MainApplication(tk.Tk):
         webbrowser.open(ticket_url)
 
     def it_glue_popup(self):        
-        popup = PopUpWindow(self)
+        if self.popup == None:
+            self.popup = PopUpWindow(self, self.it_glue_popup_closed)
+
+    def it_glue_popup_closed(self):
+        self.popup = None
 
 
 class PopUpWindow:
-    def __init__(self, parent):
+    def __init__(self, parent, close_callback):
         self.parent = parent
         self.popup = tk.Toplevel(parent)
         self.popup.title("IT Glue Credentials")
-        self.set_position()
-        self.generate_ui()
+        self.close_callback = close_callback
 
-        self.get_itglue_ids = None
+        self.set_position()
+        self.popup.configure(bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'])
+        self.popup.iconbitmap('transparent.ico')
+        self.init_ui()
+
         self.progress_thread = None
         self.background_thread = None
+        self.get_itglue_ids = None
         self.threads_running = False
         self.client_ids_generated = False
 
         self.popup.protocol("WM_DELETE_WINDOW", self.on_close)
 
-    def generate_ui(self):
+    def init_ui(self):
         self.username_entry_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=1)
         self.username_entry_frame.pack(fill=tk.BOTH)
-        
-        tk.Label(self.username_entry_frame, text="Username:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg']).pack(side=tk.LEFT, fill=tk.BOTH)
+        self.username_entry_label = tk.Label(self.username_entry_frame, text="Username:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'])
+        self.username_entry_label.pack(side=tk.LEFT, fill=tk.BOTH)
         self.username_entry = tk.Entry(self.username_entry_frame, fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry'])
         self.username_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
 
         self.password_entry_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=1)
         self.password_entry_frame.pack(fill=tk.BOTH)
-
-        tk.Label(self.password_entry_frame, text="Password:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg']).pack(side=tk.LEFT, fill=tk.BOTH)
+        self.password_entry_label = tk.Label(self.password_entry_frame, text="Password:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'])
+        self.password_entry_label.pack(side=tk.LEFT, fill=tk.BOTH)
         self.password_entry = tk.Entry(self.password_entry_frame, show="*", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry'])
         self.password_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
 
         self.mfa_entry_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=1)
         self.mfa_entry_frame.pack(fill=tk.BOTH)
-
-        tk.Label(self.mfa_entry_frame, text="MFA Code:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg']).pack(side=tk.LEFT, fill=tk.BOTH)
+        self.mfa_entry_label = tk.Label(self.mfa_entry_frame, text="MFA Code:", fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'])
+        self.mfa_entry_label.pack(side=tk.LEFT, fill=tk.BOTH)
         self.mfa_entry = tk.Entry(self.mfa_entry_frame, fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry'])
         self.mfa_entry.pack(side=tk.RIGHT, fill=tk.BOTH)
 
-        self.progress = ttk.Progressbar(self.popup, orient="horizontal", length=100, mode="determinate")
+        self.progress_frame = tk.Frame(self.popup, bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['bg'], pady=2, padx=2)
+        self.progress_frame.pack(fill=tk.BOTH)
+        self.style = ttk.Style(self.popup)
+        self.style.theme_use('clam')
+        self.update_ui_progressbar()
+        self.progress = ttk.Progressbar(self.progress_frame, style="TProgressbar", orient="horizontal", length=100, mode="determinate")
         self.progress.pack(fill=tk.BOTH)
 
-        submit_button = tk.Button(self.popup, text="Submit", command=self.submit, fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['accent'])
-        submit_button.pack(fill=tk.BOTH)
+        self.submit_button = tk.Button(self.popup, text="Submit", command=self.submit, fg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'], bg=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['accent'])
+        self.submit_button.pack(fill=tk.BOTH)
 
+    def change_ui_color(self, ui_option):
+        self.popup.configure(bg=ui_option['bg'])
+
+        self.username_entry_frame.configure(bg=ui_option['bg'])
+        self.username_entry_label.configure(fg=ui_option['fg'], bg=ui_option['bg'])
+        self.username_entry.configure(fg=ui_option['fg'], bg=ui_option['entry'])
+        self.password_entry_frame.configure(bg=ui_option['bg'])
+        self.password_entry_label.configure(fg=ui_option['fg'], bg=ui_option['bg'])
+        self.password_entry.configure(fg=ui_option['fg'], bg=ui_option['entry'])
+        self.mfa_entry_frame.configure(bg=ui_option['bg'])
+        self.mfa_entry_label.configure(fg=ui_option['fg'], bg=ui_option['bg'])
+        self.mfa_entry.configure(fg=ui_option['fg'], bg=ui_option['entry'])
+
+        self.progress_frame.configure(bg=ui_option['bg'])
+        self.update_ui_progressbar()
+        
+        self.submit_button.configure(fg=ui_option['fg'], bg=ui_option['accent'])
+
+    def update_ui_progressbar(self):
+        self.style.configure("TProgressbar", 
+            troughcolor=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['entry'],
+            background=self.parent.UI_COLORS[self.parent.settings["UI Mode"]]['fg'])
+    
     def set_position(self):
         x = self.parent.winfo_x()
         y = self.parent.winfo_y()
@@ -800,22 +851,13 @@ class PopUpWindow:
 
     def submit(self):
         if not self.threads_running:
-            try:
-                if not self.background_thread.is_alive():
-                    self.background_thread = threading.Thread(target=self.it_glue_login)
-                    self.background_thread.start()
-            except AttributeError:
-                self.background_thread = threading.Thread(target=self.it_glue_login)
-                self.background_thread.start()
-                
-            try:
-                if not self.progress_thread.is_alive():
-                    self.progress_thread = threading.Thread(target=self.update_progress)
-                    self.progress_thread.start()
-            except AttributeError:
-                self.progress_thread = threading.Thread(target=self.update_progress)
-                self.progress_thread.start()
             self.threads_running = True
+            
+            self.progress_thread = threading.Thread(target=self.update_progress)
+            self.progress_thread.start()
+            
+            self.background_thread = threading.Thread(target=self.it_glue_login)
+            self.background_thread.start()
         else:
             messagebox.showinfo('Warning', "Already generating client IDs")
         
@@ -841,6 +883,7 @@ class PopUpWindow:
         data = self.get_itglue_ids.client_ids_data
     
         self.get_itglue_ids.updateJSON(data)
+        self.parent.ITGLUE_CLIENT_IDS = JSONFileManager.load_file("it_glue_client_ids.json")
 
         self.client_ids_generated = True
 
@@ -850,13 +893,44 @@ class PopUpWindow:
         self.popup.after(0, task)
 
     def update_progress(self):
+        #fake loading as its not easy to measure progress while things are being created and initialized
         while not self.get_itglue_ids:
-            time.sleep(1)
+            time.sleep(.1)
+            random_increment = random.randint(3, 8)
+            if self.progress['value'] + random_increment <= 100:
+                self.progress['value'] += random_increment
+            else:
+                self.progress['value'] = 0
+            self.popup.update_idletasks()
+
+        self.progress['value'] = 100
+        self.popup.update_idletasks()
+        
+        while self.get_itglue_ids.progress < 5:
+            time.sleep(.2)
+            random_increment = random.randint(2, 7)
+            if self.progress['value'] + random_increment <= 100:
+                self.progress['value'] += random_increment
+            else:
+                self.progress['value'] = 0
+            self.popup.update_idletasks()
+
+        while self.progress['value'] < 100:
+            time.sleep(.1)
+
+            random_increment = random.randint(1, 4)
+            if self.progress['value'] + random_increment <= 100:
+                self.progress['value'] += random_increment
+            else:
+                self.progress['value'] = 100
+            self.popup.update_idletasks()
+
+        #real loading starts
         while self.background_thread.is_alive():
+            time.sleep(.5)
             self.progress['value'] = self.get_itglue_ids.progress
             self.popup.update_idletasks()
-            time.sleep(.5)
-
+    
         self.progress['value'] = self.get_itglue_ids.progress
         self.popup.update_idletasks()
 
@@ -870,6 +944,7 @@ class PopUpWindow:
         if self.background_thread and self.background_thread.is_alive():
             messagebox.showwarning("Warning", "Client IDs are still generating!")
         else:
+            self.close_callback()
             self.popup.destroy()
 
 
